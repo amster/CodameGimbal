@@ -12,13 +12,13 @@
   NSString *theAppSecret = [cArgs objectAtIndex:1];
   NSString *theCallbackUrl = [cArgs objectAtIndex:2];
   
-  if ([theAppId length] > 0) {
+  if (theAppId == (id)[NSNull null] || [theAppId length] == 0) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app ID"];
     NSLog(@"Returning error: 0");
-  } else if ([theAppSecret length] > 0) {
+  } else if (theAppSecret == (id)[NSNull null] || [theAppSecret length] == 0) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app secret"];
     NSLog(@"Returning error: 1");
-  } else if ([theCallbackUrl length] > 0) {
+  } else if (theCallbackUrl == (id)[NSNull null] || [theCallbackUrl length] == 0) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing callback URL"];
     NSLog(@"Returning error: 2");
   } else {
