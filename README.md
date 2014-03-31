@@ -11,3 +11,12 @@ You will need your beacons configured in a standard Gimbal mode, not iBeacon mod
 
 * [Gimbal.com home page](https://gimbal.com)
 * [Gimbal Beacon Manager App](https://itunes.apple.com/us/app/gimbal-beacon-manager/id785688563?mt=8)
+
+Usage
+-----
+
+    var theAppId = 'Your app ID',
+        theAppSecret = 'Your app secret',
+        theCallbackUrl = 'Your app callback URL',
+        optionalResultCallback = function (result) { /* Do something */ };
+    window.Gimbal.initApp(theAppId, theAppSecret, theCallbackUrl, optionalResultCallback);

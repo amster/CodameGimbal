@@ -5,20 +5,26 @@
 @implementation Gimbal
 
 - (void)initApp:(CDVInvokedUrlCommand*)command {
+  NSArray *cArgs = command.arguments;
   CDVPluginResult* pluginResult = nil;
-  NSString* theAppId = [command.arguments objectAtIndex:0];
-  NSString* theAppSecret = [command.arguments objectAtIndex:1];
-  NSString* theCallbackUrl = [command.arguments objectAtIndex:2];
+
+  NSString *theAppId = [cArgs objectAtIndex:0];
+  NSString *theAppSecret = [cArgs objectAtIndex:1];
+  NSString *theCallbackUrl = [cArgs objectAtIndex:2];
   
-  if (theAppId == nil) {
+  if ([theAppId length] > 0) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app ID"];
-  } else if (theAppSecret == nil) {
+    NSLog(@"Returning error: 0");
+  } else if ([theAppSecret length] > 0) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app secret"];
-  } else if (theCallbackUrl == nil) {
+    NSLog(@"Returning error: 1");
+  } else if ([theCallbackUrl length] > 0) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing callback URL"];
+    NSLog(@"Returning error: 2");
   } else {
     [self _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    NSLog(@"Returning success.");
   }
   
   [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -31,25 +37,6 @@
   
   [FYX setAppId:self.appId appSecret:self.appSecret callbackUrl:self.appCallbackUrl];
   NSLog(@"Init'd FYX! %@, %@, %@", self.appId, self.appSecret, self.appCallbackUrl);
-}
-
-- (void)hello:(CDVInvokedUrlCommand*)command {
-  self.count += 1;
-  
-  CDVPluginResult* pluginResult = nil;
-  NSString* message = [command.arguments objectAtIndex:0];
-
-  NSLog(@"[%d] Inside Gimbal iOS! Your message: \"%@\"", self.count, message);
-  
-  // if (message != nil && [message length] > 0) {
-  //     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
-  // } else {
-  //     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-  // }
-
-  [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"OK, roundtrip."];
-
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end
