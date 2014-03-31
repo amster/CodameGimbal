@@ -30,7 +30,7 @@
   self.appCallbackUrl = theCallbackUrl;
   
   [FYX setAppId:self.appId appSecret:self.appSecret callbackUrl:self.appCallbackUrl];
-  NSLog(@"Init'd FYX! %@, %@, %@", self.appId, self.appSecret, self.appCallbackUrl)
+  NSLog(@"Init'd FYX! %@, %@, %@", self.appId, self.appSecret, self.appCallbackUrl);
 }
 
 - (void)hello:(CDVInvokedUrlCommand*)command {
