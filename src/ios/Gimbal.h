@@ -13,6 +13,4 @@
 - (void)initApp:(CDVInvokedUrlCommand*)command;
 - (void)_initApp_:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl;
 
-- (void)hello:(CDVInvokedUrlCommand*)command;
-
 @end
