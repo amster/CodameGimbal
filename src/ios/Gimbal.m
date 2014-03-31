@@ -4,7 +4,7 @@
 
 @implementation Gimbal
 
-- (id)initWithAppId:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl {
+- (void)setAppId:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl {
   self = [super init];
   
   self.appId = theAppId;
