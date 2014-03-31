@@ -4,7 +4,7 @@
 
 @implementation Gimbal
 
-- (void)setAppId(CDVInvokedUrlCommand*)command {
+- (void)setAppId:(CDVInvokedUrlCommand*)command {
   CDVPluginResult* pluginResult = nil;
   NSString* theAppid = [command.arguments objectAtIndex:0];
   NSString* theAppSecret = [command.arguments objectAtIndex:1];

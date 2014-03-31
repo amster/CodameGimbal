@@ -10,7 +10,7 @@
 @property (strong, nonatomic) NSString *appSecret;
 @property (strong, nonatomic) NSString *appCallbackUrl;
 
-- (void)setAppId(CDVInvokedUrlCommand*)command;
+- (void)setAppId:(CDVInvokedUrlCommand*)command;
 - (void)_setAppId_:(NSString *)appId appSecret:(NSString *)appSecret callbackUrl:(NSString *)callbackUrl;
 
 - (void)hello:(CDVInvokedUrlCommand*)command;
