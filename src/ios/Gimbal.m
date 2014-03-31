@@ -14,23 +14,28 @@
   NSString *theAppId = [cArgs objectAtIndex:0];
   NSString *theAppSecret = [cArgs objectAtIndex:1];
   NSString *theCallbackUrl = [cArgs objectAtIndex:2];
-  
+  NSString *errorMessage;
   if (theAppId == (id)[NSNull null] || [theAppId length] == 0) {
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app ID"];
-    NSLog(@"Returning error: 0");
+    errorMessage = @"Missing app ID";
   } else if (theAppSecret == (id)[NSNull null] || [theAppSecret length] == 0) {
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app secret"];
-    NSLog(@"Returning error: 1");
+    errorMessage = @"Missing app secret";
   } else if (theCallbackUrl == (id)[NSNull null] || [theCallbackUrl length] == 0) {
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing callback URL"];
-    NSLog(@"Returning error: 2");
-  } else {
-    [self _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    NSLog(@"Returning success.");
+    errorMessage = @"Missing callback URL";
   }
   
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  if (errorMessage) {
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  } else {
+    // See:
+    // http://docs.phonegap.com/en/edge/guide_platforms_ios_plugin.md.html#iOS%20Plugins_threading
+    [self.commandDelegate runInBackground:^{
+      [self _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
+
+      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+  }
 }
 
 - (void)_initApp_:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl {
