@@ -5,7 +5,47 @@
 
 #import "Gimbal.h"
 
+#pragma mark - Visit utility class
+
+@interface GimbalVisit : NSObject
+@property (strong, nonatomic) NSNumber *rssi;
+@property (strong, nonatomic) FYXVisit *visit;
+
+- (id)initWithVisit:(FYXVisit *)theVisit rssi:(NSNumber *)theRssi;
+@end
+
+@implementation GimbalVisit
+
+- (id)initWithVisit:(FYXVisit *)theVisit rssi:(NSNumber *)theRssi {
+  self = [super init];
+  
+  self.visit = theVisit;
+  self.rssi = theRssi;
+  
+  return self;
+}
+
+- (BOOL)isEqual:(id)anObject {
+  return (self.visit && self.visit.transmitter && self.visit.transmitter.identifier) ==
+         (anObject.visit && anObject.visit.transmitter && anObject.visit.transmitter.identifier);
+}
+
+@end
+
+#pragma mark - Main CODAME Gimbal manager
+
 @implementation Gimbal
+
+- (Gimbal*)pluginInitialize {
+  self.isServiceStarted = NO;
+  self.serviceStartedError = nil;
+
+  self.beacons = [[NSMutableArray alloc] init];
+  self.recentlyArrivedBeacons = [[NSMutableArray alloc] init];
+  self.recentlyDepartedBeacons = [[NSMutableArray alloc] init];
+
+  return self;
+}
 
 - (void)initApp:(CDVInvokedUrlCommand*)command {
   NSArray *cArgs = command.arguments;
@@ -86,16 +126,30 @@
 }
 
 - (void)didArrive:(FYXVisit *)visit {
-   NSLog(@"I arrived at a Gimbal Beacon!!! %@", visit.transmitter.name);
+  GimbalVisit *gv = [[GimbalVisit alloc] initWithVisit:visit rssi:nil];
+  
+  if (![self.recentlyArrivedBeacons containsObject:gv]) {
+    [self.recentlyArrivedBeacons addObject:gv];
+    NSLog(@"Gimbal didArrive: %@ (%@)", gv.visit.transmitter.name, gv.visit.transmitter.identifier);
+  }
 }
 
 - (void)receivedSighting:(FYXVisit *)visit updateTime:(NSDate *)updateTime RSSI:(NSNumber *)RSSI {
-   NSLog(@"I received a sighting!!! %@", visit.transmitter.name);
+  GimbalVisit *gv = [[GimbalVisit alloc] initWithVisit:visit rssi:RSSI];
+  
+  if (![self.beacons containsObject:gv]) {
+    [self.beacons addObject:gv];
+    NSLog(@"Gimbal receivedSighting: %@ (%@)", gv.visit.transmitter.name, gv.visit.transmitter.identifier);
+  }
 }
 
 - (void)didDepart:(FYXVisit *)visit {
-   NSLog(@"I left the proximity of a Gimbal Beacon!!!! %@", visit.transmitter.name);
-   NSLog(@"I was around the beacon for %f seconds", visit.dwellTime);
+  GimbalVisit *gv = [[GimbalVisit alloc] initWithVisit:visit rssi:nil];
+  
+  if (![self.recentlyDepartedBeacons containsObject:gv]) {
+    [self.recentlyDepartedBeacons addObject:gv];
+    NSLog(@"Gimbal didDepart: %@ (%@), dwelled %.2f seconds", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.visit.dwellTime);
+  }
 }
 
 - (void)stopFYXVisitManager:(CDVInvokedUrlCommand*)command {

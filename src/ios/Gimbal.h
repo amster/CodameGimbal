@@ -12,6 +12,10 @@
 @property BOOL isServiceStarted;
 @property (strong, nonatomic) NSError *serviceStartedError;
 
+@property (strong, nonatomic) NSMutableArray *beacons;
+@property (strong, nonatomic) NSMutableArray *recentlyArrivedBeacons;
+@property (strong, nonatomic) NSMutableArray *recentlyDepartedBeacons;
+
 @property (nonatomic) FYXVisitManager *fyxVisitManager;
 
 - (void)initApp:(CDVInvokedUrlCommand*)command;
