@@ -84,8 +84,24 @@
 - (void)receivedSighting:(FYXVisit *)visit updateTime:(NSDate *)updateTime RSSI:(NSNumber *)RSSI {
    NSLog(@"I received a sighting!!! %@", visit.transmitter.name);
 }
+
 - (void)didDepart:(FYXVisit *)visit {
    NSLog(@"I left the proximity of a Gimbal Beacon!!!! %@", visit.transmitter.name);
    NSLog(@"I was around the beacon for %f seconds", visit.dwellTime);
 }
+
+- (void)stopFYXVisitManager:(CDVInvokedUrlCommand*)command {
+  CDVPluginResult* pluginResult = nil;
+  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  
+  [self _stopFYXVisitManager_];
+  
+  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)_stopFYXVisitManager_ {
+  [self.fyxVisitManager stop];
+  NSLog(@"FYX monitoring stopped");
+}
+
 @end

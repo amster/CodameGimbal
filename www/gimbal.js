@@ -28,5 +28,13 @@ Gimbal.prototype.startFYXVisitManager = function () {
       "Gimbal", "startFYXVisitManager", []
       );
 };
+Gimbal.prototype.stopFYXVisitManager = function () {
+  var t = this;
+  return cordova.exec(
+      function (parm) { },
+      function (error) { },
+      "Gimbal", "stopFYXVisitManager", []
+      );
+};
 
 module.exports = new Gimbal();
