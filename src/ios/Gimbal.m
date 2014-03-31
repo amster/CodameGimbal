@@ -59,7 +59,7 @@
   self.fyxVisitManager.delegate = self;
 }
 
-- (void)startFYXVisitManager(CDVInvokedUrlCommand*)command {
+- (void)startFYXVisitManager:(CDVInvokedUrlCommand*)command {
   CDVPluginResult* pluginResult = nil;
   pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   

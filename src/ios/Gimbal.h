@@ -17,7 +17,7 @@
 - (void)initApp:(CDVInvokedUrlCommand*)command;
 - (void)_initApp_:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl;
 
-- (void)startFYXVisitManager(CDVInvokedUrlCommand*)command;
+- (void)startFYXVisitManager:(CDVInvokedUrlCommand*)command;
 - (void)_startFYXVisitManager_;
 
 @end
