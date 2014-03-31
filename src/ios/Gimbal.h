@@ -11,7 +11,7 @@
 @property (strong, nonatomic) NSString *appCallbackUrl;
 
 - (void)setAppId:(CDVInvokedUrlCommand*)command;
-- (void)_setAppId_:(NSString *)appId appSecret:(NSString *)appSecret callbackUrl:(NSString *)callbackUrl;
+- (void)_setAppId_:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl;
 
 - (void)hello:(CDVInvokedUrlCommand*)command;
 
