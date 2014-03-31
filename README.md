@@ -15,8 +15,16 @@ You will need your beacons configured in a standard Gimbal mode, not iBeacon mod
 Usage
 -----
 
+    // Initialize the Gimbal manager, start monitoring with the
+    // FYX visit manager
     var theAppId = 'Your app ID',
         theAppSecret = 'Your app secret',
         theCallbackUrl = 'Your app callback URL',
         optionalResultCallback = function (result) { /* Do something */ };
-    window.Gimbal.initApp(theAppId, theAppSecret, theCallbackUrl, optionalResultCallback);
+    window.Gimbal.initApp(theAppId,
+                          theAppSecret,
+                          theCallbackUrl,
+                          optionalResultCallback);
+                        
+    // Start monitoring for beacons
+    window.Gimbal.startFYXVisitManager();
