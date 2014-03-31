@@ -7,8 +7,10 @@ function Gimbal() {
 }
 
 Gimbal.prototype.hello = function (message) {
-  console.log('hello from the prototype!');
-  cordova.exec(function(parm){}, function(error){}, "Gimbal", "hello", [message]);
+  return cordova.exec(function(parm){}, function(error){}, "Gimbal", "hello", [message]);
+};
+Gimbal.prototype.setAppId = function (theAppId, theAppSecret, theCallbackUrl) {
+  return cordova.exec(function(parm){}, function(error){}, "Gimbal", "setAppId", [theAppId, theAppSecret, theCallbackUrl]);
 };
 
 module.exports = new Gimbal();
