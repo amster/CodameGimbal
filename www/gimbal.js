@@ -16,7 +16,7 @@ Gimbal.prototype.initApp = function (theAppId, theAppSecret, theCallbackUrl, res
   var t = this;
   return cordova.exec(
       function (parm) { console.log('*** p1: ' + parm); t.callGenericSuccessCallback(resultCallback, parm); },
-      function (error) { console.log('*** e1: ' + parm); t.callGenericFailureCallback(resultCallback, parm); },
+      function (error) { console.log('*** e1: ' + error); t.callGenericFailureCallback(resultCallback, error); },
       "Gimbal", "initApp", [theAppId, theAppSecret, theCallbackUrl]
       );
 };
