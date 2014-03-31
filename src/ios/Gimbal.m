@@ -6,11 +6,11 @@
 
 - (void)setAppId:(CDVInvokedUrlCommand*)command {
   CDVPluginResult* pluginResult = nil;
-  NSString* theAppid = [command.arguments objectAtIndex:0];
+  NSString* theAppId = [command.arguments objectAtIndex:0];
   NSString* theAppSecret = [command.arguments objectAtIndex:1];
   NSString* theCallbackUrl = [command.arguments objectAtIndex:2];
   
-  if (theAppid == nil) {
+  if (theAppId == nil) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app ID"];
   } else if (theAppSecret == nil) {
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Missing app secret"];
