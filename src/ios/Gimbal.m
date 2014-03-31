@@ -17,12 +17,12 @@
 }
 
 - (void)hello:(CDVInvokedUrlCommand*)command {
-  count += 1;
+  self.count += 1;
   
   CDVPluginResult* pluginResult = nil;
   NSString* message = [command.arguments objectAtIndex:0];
 
-  NSLog(@"[%d] Inside Gimbal iOS! Your message: \"%@\"", count, message);
+  NSLog(@"[%d] Inside Gimbal iOS! Your message: \"%@\"", self.count, message);
   
   // if (message != nil && [message length] > 0) {
   //     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:message];
