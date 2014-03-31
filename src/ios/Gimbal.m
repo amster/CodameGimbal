@@ -9,7 +9,6 @@
 
 - (void)initApp:(CDVInvokedUrlCommand*)command {
   NSArray *cArgs = command.arguments;
-  CDVPluginResult* pluginResult = nil;
 
   NSString *theAppId = [cArgs objectAtIndex:0];
   NSString *theAppSecret = [cArgs objectAtIndex:1];
@@ -24,16 +23,20 @@
   }
   
   if (errorMessage) {
+    CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   } else {
     // See:
     // http://docs.phonegap.com/en/edge/guide_platforms_ios_plugin.md.html#iOS%20Plugins_threading
+    
+    __weak Gimbal *blockSafeSelf = self;
     [self.commandDelegate runInBackground:^{
-      [self _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
+      CDVPluginResult* pluginResult = nil;
+      [blockSafeSelf _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
 
       pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+      [blockSafeSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
   }
 }
