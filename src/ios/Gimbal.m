@@ -8,10 +8,12 @@
 #pragma mark - Visit utility class
 
 @interface GimbalVisit : NSObject
+
 @property (strong, nonatomic) NSNumber *rssi;
 @property (strong, nonatomic) FYXVisit *visit;
 
 - (id)initWithVisit:(FYXVisit *)theVisit rssi:(NSNumber *)theRssi;
+
 @end
 
 @implementation GimbalVisit
@@ -36,16 +38,16 @@
 
 @implementation Gimbal
 
-- (Gimbal*)pluginInitialize {
-  self.isServiceStarted = NO;
-  self.serviceStartedError = nil;
-
-  self.beacons = [[NSMutableArray alloc] init];
-  self.recentlyArrivedBeacons = [[NSMutableArray alloc] init];
-  self.recentlyDepartedBeacons = [[NSMutableArray alloc] init];
-
-  return self;
-}
+// - (Gimbal *)pluginInitialize {
+//   self.isServiceStarted = NO;
+//   self.serviceStartedError = nil;
+// 
+//   self.beacons = [[NSMutableArray alloc] init];
+//   self.recentlyArrivedBeacons = [[NSMutableArray alloc] init];
+//   self.recentlyDepartedBeacons = [[NSMutableArray alloc] init];
+// 
+//   return self;
+// }
 
 - (void)initApp:(CDVInvokedUrlCommand*)command {
   NSArray *cArgs = command.arguments;
