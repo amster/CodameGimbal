@@ -137,9 +137,13 @@
 - (void)receivedSighting:(FYXVisit *)visit updateTime:(NSDate *)updateTime RSSI:(NSNumber *)RSSI {
   GimbalVisit *gv = [[GimbalVisit alloc] initWithVisit:visit rssi:RSSI];
   
-  if (![self.beacons containsObject:gv]) {
+  NSUInteger beaconIdx = [self.beacons indexOfObject:gv];
+  if (beaconIdx == NSNotFound) {
     [self.beacons addObject:gv];
-    NSLog(@"Gimbal receivedSighting: %@ (%@)", gv.visit.transmitter.name, gv.visit.transmitter.identifier);
+    NSLog(@"Gimbal receivedSighting: %@ (%@), %.2f power", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
+  } else {
+    self.beacons[beaconIdx] = gv;
+    NSLog(@"Gimbal receivedSighting: %@ (%@), %.2f power UPDATING", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
   }
 }
 
