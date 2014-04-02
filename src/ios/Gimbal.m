@@ -40,18 +40,23 @@
   if (self.visit) {
     [props setValue:@([self.visit.startTime timeIntervalSince1970]) forKey:@"startTime"];
     [props setValue:@(self.visit.dwellTime) forKey:@"dwellTime"];
-    [props setValue:self.visit.transmitter.identifier forKey:@"identifier"];
-    [props setValue:self.visit.transmitter.name forKey:@"name"];
-    [props setValue:self.visit.transmitter.ownerId forKey:@"ownerId"];
-    [props setValue:self.visit.transmitter.iconUrl forKey:@"iconUrl"];
-    [props setValue:@([self.visit.transmitter.battery floatValue]) forKey:@"battery"];
-    [props setValue:@([self.visit.transmitter.temperature floatValue]) forKey:@"temperature"];
+    
+    if (self.visit.transmitter) {
+      [props setValue:self.visit.transmitter.identifier forKey:@"identifier"];
+      [props setValue:self.visit.transmitter.name forKey:@"name"];
+      [props setValue:self.visit.transmitter.ownerId forKey:@"ownerId"];
+      [props setValue:self.visit.transmitter.iconUrl forKey:@"iconUrl"];
+      [props setValue:@([self.visit.transmitter.battery floatValue]) forKey:@"battery"];
+      [props setValue:@([self.visit.transmitter.temperature floatValue]) forKey:@"temperature"];
+    }
   }
   
   return props;
 }
 
 @end
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #pragma mark - Main CODAME Gimbal manager
 
@@ -73,8 +78,7 @@
 
   NSString *errorMessage = [self requireArgs:cArgs messageMap:@[@"app ID", @"app secret", @"callback URL"]];
   if (errorMessage) {
-    CDVPluginResult* pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     return;
   }
@@ -86,10 +90,9 @@
   // http://docs.phonegap.com/en/edge/guide_platforms_ios_plugin.md.html#iOS%20Plugins_threading
   __weak Gimbal *blockSafeSelf = self;
   [self.commandDelegate runInBackground:^{
-    CDVPluginResult* pluginResult = nil;
     [blockSafeSelf _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
 
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [blockSafeSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
@@ -106,13 +109,6 @@
 
 - (void)startMonitoring {
   [FYX startService:self];
-}
-
-- (void)serviceStarted {
-  self.isServiceStarted = YES;
-  NSLog(@"FYX service initialized");
-  
-  [self initFYXVisitManager];
 }
 
 - (void)initFYXVisitManager {
@@ -133,15 +129,12 @@
 - (void)getBeacons:(CDVInvokedUrlCommand*)command {
   [self.commandDelegate runInBackground:^{
     NSMutableArray* output = [NSMutableArray array];
-    
-    if([self.beacons count] > 0) {
-      for (GimbalVisit *visit in self.beacons) {
-        [output addObject:[visit toDictionary]];
-      }
+
+    for (GimbalVisit *visit in self.beacons) {
+      [output addObject:[visit toDictionary]];
     }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:output];
-    
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
   }];
 }
@@ -156,6 +149,12 @@
 }
 
 #pragma mark - Gimbal FYX API
+
+- (void)serviceStarted {
+  self.isServiceStarted = YES;
+  
+  [self initFYXVisitManager];
+}
 
 - (void)startServiceFailed:(NSError *)error {
   self.serviceStartedError = error;
