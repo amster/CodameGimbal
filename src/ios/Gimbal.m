@@ -36,16 +36,16 @@
 
 - (NSMutableDictionary *)toDictionary {
   NSMutableDictionary* props = [[NSMutableDictionary alloc] init];
-  [props setValue:visit.rssi forKey:@"rssi"];
-  if (visit.visit) {
-    [props setValue:@([visit.visit.startTime timeIntervalSince1970]) forKey:@"startTime"];
-    [props setValue:@(visit.visit.dwellTime) forKey:@"dwellTime"];
-    [props setValue:visit.visit.transmitter.identifier forKey:@"identifier"];
-    [props setValue:visit.visit.transmitter.name forKey:@"name"];
-    [props setValue:visit.visit.transmitter.ownerId forKey:@"ownerId"];
-    [props setValue:visit.visit.transmitter.iconUrl forKey:@"iconUrl"];
-    [props setValue:@([visit.visit.transmitter.battery floatValue]) forKey:@"battery"];
-    [props setValue:@([visit.visit.transmitter.temperature floatValue]) forKey:@"temperature"];
+  [props setValue:self.rssi forKey:@"rssi"];
+  if (self.visit) {
+    [props setValue:@([self.visit.startTime timeIntervalSince1970]) forKey:@"startTime"];
+    [props setValue:@(self.visit.dwellTime) forKey:@"dwellTime"];
+    [props setValue:self.visit.transmitter.identifier forKey:@"identifier"];
+    [props setValue:self.visit.transmitter.name forKey:@"name"];
+    [props setValue:self.visit.transmitter.ownerId forKey:@"ownerId"];
+    [props setValue:self.visit.transmitter.iconUrl forKey:@"iconUrl"];
+    [props setValue:@([self.visit.transmitter.battery floatValue]) forKey:@"battery"];
+    [props setValue:@([self.visit.transmitter.temperature floatValue]) forKey:@"temperature"];
   }
   
   return props;
