@@ -189,7 +189,7 @@
     NSLog(@"Gimbal receivedSighting: %@ (%@), %.2f power", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
   } else {
     self.beacons[beaconIdx] = gv;
-    NSLog(@"Gimbal receivedSighting: %@ (%@), %.2f power UPDATING", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
+    NSLog(@"Gimbal receivedSighting: [%d] %@ (%@), %.2f power UPDATING", beaconIdx, gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
   }
 }
 
