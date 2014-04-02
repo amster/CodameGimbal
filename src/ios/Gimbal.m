@@ -119,7 +119,7 @@
 - (void)startFYXVisitManager:(CDVInvokedUrlCommand*)command {
   [self.commandDelegate runInBackground:^{
     [self.fyxVisitManager start];
-    NSLog(@"FYX monitoring started");
+    // NSLog(@"FYX monitoring started");
   
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -165,7 +165,7 @@
   
   if (![self.recentlyArrivedBeacons containsObject:gv]) {
     [self.recentlyArrivedBeacons addObject:gv];
-    NSLog(@"Gimbal didArrive: %@ (%@)", gv.visit.transmitter.name, gv.visit.transmitter.identifier);
+    // NSLog(@"Gimbal didArrive: %@ (%@)", gv.visit.transmitter.name, gv.visit.transmitter.identifier);
   }
 }
 
@@ -176,7 +176,7 @@
     [self.recentlyDepartedBeacons addObject:gv];
     
     // From 
-    NSLog(@"Gimbal didDepart: %@ (%@), dwelled %.2f seconds", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.visit.dwellTime);
+    // NSLog(@"Gimbal didDepart: %@ (%@), dwelled %.2f seconds", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.visit.dwellTime);
   }
 }
 
@@ -186,10 +186,10 @@
   NSUInteger beaconIdx = [self.beacons indexOfObject:gv];
   if (beaconIdx == NSNotFound) {
     [self.beacons addObject:gv];
-    NSLog(@"Gimbal receivedSighting: %@ (%@), %.2f power", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
+    // NSLog(@"Gimbal receivedSighting: %@ (%@), %.2f power", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
   } else {
     self.beacons[beaconIdx] = gv;
-    NSLog(@"Gimbal receivedSighting: [%d] %@ (%@), %.2f power UPDATING", beaconIdx, gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
+    // NSLog(@"Gimbal receivedSighting: [%d] %@ (%@), %.2f power UPDATING", beaconIdx, gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.rssi);
   }
 }
 
