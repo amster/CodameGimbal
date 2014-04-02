@@ -13,6 +13,7 @@
 @property (strong, nonatomic) FYXVisit *visit;
 
 - (id)initWithVisit:(FYXVisit *)theVisit rssi:(NSNumber *)theRssi;
+- (NSMutableDictionary *)toDictionary;
 
 @end
 
@@ -33,6 +34,23 @@
          (otherVisit.visit && otherVisit.visit.transmitter && otherVisit.visit.transmitter.identifier);
 }
 
+- (NSMutableDictionary *)toDictionary {
+  NSMutableDictionary* props = [[NSMutableDictionary alloc] init];
+  [props setValue:visit.rssi forKey:@"rssi"];
+  if (visit.visit) {
+    [props setValue:@([visit.visit.startTime timeIntervalSince1970]) forKey:@"startTime"];
+    [props setValue:@(visit.visit.dwellTime) forKey:@"dwellTime"];
+    [props setValue:visit.visit.transmitter.identifier forKey:@"identifier"];
+    [props setValue:visit.visit.transmitter.name forKey:@"name"];
+    [props setValue:visit.visit.transmitter.ownerId forKey:@"ownerId"];
+    [props setValue:visit.visit.transmitter.iconUrl forKey:@"iconUrl"];
+    [props setValue:@([visit.visit.transmitter.battery floatValue]) forKey:@"battery"];
+    [props setValue:@([visit.visit.transmitter.temperature floatValue]) forKey:@"temperature"];
+  }
+  
+  return props;
+}
+
 @end
 
 #pragma mark - Main CODAME Gimbal manager
@@ -48,18 +66,6 @@
   self.recentlyDepartedBeacons = [[NSMutableArray alloc] init];
 
   return self;
-}
-
-- (NSString *)requireArgs:(NSArray *)args messageMap:(NSArray *)mmap {
-  for (int i=0; i<[mmap count]; i++) {
-    NSString *argVal = [args objectAtIndex:i];
-    
-    if (argVal == (id)[NSNull null] || [argVal length] == 0) {
-      return [NSString stringWithFormat:@"Missing %@", [mmap objectAtIndex:i]];
-    }
-  }
-  
-  return nil;
 }
 
 - (void)initApp:(CDVInvokedUrlCommand*)command {
@@ -115,17 +121,13 @@
 }
 
 - (void)startFYXVisitManager:(CDVInvokedUrlCommand*)command {
-  CDVPluginResult* pluginResult = nil;
-  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+  [self.commandDelegate runInBackground:^{
+    [self.fyxVisitManager start];
+    NSLog(@"FYX monitoring started");
   
-  [self _startFYXVisitManager_];
-  
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-- (void)_startFYXVisitManager_ {
-  [self.fyxVisitManager start];
-  NSLog(@"FYX monitoring started");
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
 
 - (void)getBeacons:(CDVInvokedUrlCommand*)command {
@@ -133,8 +135,8 @@
     NSMutableArray* output = [NSMutableArray array];
     
     if([self.beacons count] > 0) {
-      for (id visit in self.beacons) {
-        [output addObject:[self visitToDictionary:visit]];
+      for (GimbalVisit *visit in self.beacons) {
+        [output addObject:[visit toDictionary]];
       }
     }
     
@@ -144,23 +146,16 @@
   }];
 }
 
-- (NSMutableDictionary *)visitToDictionary:(GimbalVisit*)visit
-{
-    NSMutableDictionary* props = [[NSMutableDictionary alloc] init];
-    [props setValue:visit.rssi forKey:@"rssi"];
-    if (visit.visit) {
-      [props setValue:@([visit.visit.startTime timeIntervalSince1970]) forKey:@"startTime"];
-      [props setValue:@(visit.visit.dwellTime) forKey:@"dwellTime"];
-      [props setValue:visit.visit.transmitter.identifier forKey:@"identifier"];
-      [props setValue:visit.visit.transmitter.name forKey:@"name"];
-      [props setValue:visit.visit.transmitter.ownerId forKey:@"ownerId"];
-      [props setValue:visit.visit.transmitter.iconUrl forKey:@"iconUrl"];
-      [props setValue:@([visit.visit.transmitter.battery floatValue]) forKey:@"battery"];
-      [props setValue:@([visit.visit.transmitter.temperature floatValue]) forKey:@"temperature"];
-    }
-    
-    return props;
+- (void)stopFYXVisitManager:(CDVInvokedUrlCommand*)command {
+  [self.commandDelegate runInBackground:^{
+    [self.fyxVisitManager stop];
+  
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
+
+#pragma mark - Gimbal FYX API
 
 - (void)startServiceFailed:(NSError *)error {
   self.serviceStartedError = error;
@@ -172,6 +167,17 @@
   if (![self.recentlyArrivedBeacons containsObject:gv]) {
     [self.recentlyArrivedBeacons addObject:gv];
     NSLog(@"Gimbal didArrive: %@ (%@)", gv.visit.transmitter.name, gv.visit.transmitter.identifier);
+  }
+}
+
+- (void)didDepart:(FYXVisit *)visit {
+  GimbalVisit *gv = [[GimbalVisit alloc] initWithVisit:visit rssi:nil];
+  
+  if (![self.recentlyDepartedBeacons containsObject:gv]) {
+    [self.recentlyDepartedBeacons addObject:gv];
+    
+    // From 
+    NSLog(@"Gimbal didDepart: %@ (%@), dwelled %.2f seconds", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.visit.dwellTime);
   }
 }
 
@@ -188,27 +194,17 @@
   }
 }
 
-- (void)didDepart:(FYXVisit *)visit {
-  GimbalVisit *gv = [[GimbalVisit alloc] initWithVisit:visit rssi:nil];
-  
-  if (![self.recentlyDepartedBeacons containsObject:gv]) {
-    [self.recentlyDepartedBeacons addObject:gv];
-    NSLog(@"Gimbal didDepart: %@ (%@), dwelled %.2f seconds", gv.visit.transmitter.name, gv.visit.transmitter.identifier, gv.visit.dwellTime);
+#pragma mark - Utility methods
+- (NSString *)requireArgs:(NSArray *)args messageMap:(NSArray *)mmap {
+  for (int i=0; i<[mmap count]; i++) {
+    NSString *argVal = [args objectAtIndex:i];
+    
+    if (argVal == (id)[NSNull null] || [argVal length] == 0) {
+      return [NSString stringWithFormat:@"Missing %@", [mmap objectAtIndex:i]];
+    }
   }
-}
-
-- (void)stopFYXVisitManager:(CDVInvokedUrlCommand*)command {
-  CDVPluginResult* pluginResult = nil;
-  pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
   
-  [self _stopFYXVisitManager_];
-  
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-- (void)_stopFYXVisitManager_ {
-  [self.fyxVisitManager stop];
-  NSLog(@"FYX monitoring stopped");
+  return nil;
 }
 
 @end
