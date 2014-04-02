@@ -28,8 +28,9 @@
 }
 
 - (BOOL)isEqual:(id)anObject {
+  FYXVisit *otherVisit = (FYXVisit *)anObject;
   return (self.visit && self.visit.transmitter && self.visit.transmitter.identifier) ==
-         (anObject.visit && anObject.visit.transmitter && anObject.visit.transmitter.identifier);
+         (otherVisit.visit && otherVisit.visit.transmitter && otherVisit.visit.transmitter.identifier);
 }
 
 @end
