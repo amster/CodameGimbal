@@ -39,49 +39,53 @@
 
 @implementation Gimbal
 
-// - (Gimbal *)pluginInitialize {
-//   self.isServiceStarted = NO;
-//   self.serviceStartedError = nil;
-// 
-//   self.beacons = [[NSMutableArray alloc] init];
-//   self.recentlyArrivedBeacons = [[NSMutableArray alloc] init];
-//   self.recentlyDepartedBeacons = [[NSMutableArray alloc] init];
-// 
-//   return self;
-// }
+- (Gimbal *)pluginInitialize {
+  self.isServiceStarted = NO;
+  self.serviceStartedError = nil;
+
+  self.beacons = [[NSMutableArray alloc] init];
+  self.recentlyArrivedBeacons = [[NSMutableArray alloc] init];
+  self.recentlyDepartedBeacons = [[NSMutableArray alloc] init];
+
+  return self;
+}
+
+- (NSString *)requireArgs:(NSArray *)args messageMap:(NSArray *)mmap {
+  for (int i=0; i<[mmap count]; i++) {
+    NSString *argVal = [args objectAtIndex:i];
+    
+    if (argVal == (id)[NSNull null] || [argVal length] == 0) {
+      return [NSString stringWithFormat:@"Missing %@", [mmap objectAtIndex:i]];
+    }
+  }
+  
+  return nil;
+}
 
 - (void)initApp:(CDVInvokedUrlCommand*)command {
   NSArray *cArgs = command.arguments;
 
-  NSString *theAppId = [cArgs objectAtIndex:0];
-  NSString *theAppSecret = [cArgs objectAtIndex:1];
-  NSString *theCallbackUrl = [cArgs objectAtIndex:2];
-  NSString *errorMessage;
-  if (theAppId == (id)[NSNull null] || [theAppId length] == 0) {
-    errorMessage = @"Missing app ID";
-  } else if (theAppSecret == (id)[NSNull null] || [theAppSecret length] == 0) {
-    errorMessage = @"Missing app secret";
-  } else if (theCallbackUrl == (id)[NSNull null] || [theCallbackUrl length] == 0) {
-    errorMessage = @"Missing callback URL";
-  }
-  
+  NSString *errorMessage = [self requireArgs:cArgs messageMap:@[@"app ID", @"app secret", @"callback URL"]];
   if (errorMessage) {
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-  } else {
-    // See:
-    // http://docs.phonegap.com/en/edge/guide_platforms_ios_plugin.md.html#iOS%20Plugins_threading
-    
-    __weak Gimbal *blockSafeSelf = self;
-    [self.commandDelegate runInBackground:^{
-      CDVPluginResult* pluginResult = nil;
-      [blockSafeSelf _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
-
-      pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-      [blockSafeSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }];
+    return;
   }
+  NSString *theAppId = [cArgs objectAtIndex:0];
+  NSString *theAppSecret = [cArgs objectAtIndex:1];
+  NSString *theCallbackUrl = [cArgs objectAtIndex:2];
+
+  // See:
+  // http://docs.phonegap.com/en/edge/guide_platforms_ios_plugin.md.html#iOS%20Plugins_threading
+  __weak Gimbal *blockSafeSelf = self;
+  [self.commandDelegate runInBackground:^{
+    CDVPluginResult* pluginResult = nil;
+    [blockSafeSelf _initApp_:theAppId appSecret:theAppSecret callbackUrl:theCallbackUrl];
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [blockSafeSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
 }
 
 - (void)_initApp_:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl {
@@ -122,6 +126,40 @@
 - (void)_startFYXVisitManager_ {
   [self.fyxVisitManager start];
   NSLog(@"FYX monitoring started");
+}
+
+- (void)getBeacons:(CDVInvokedUrlCommand*)command {
+  [self.commandDelegate runInBackground:^{
+    NSMutableArray* output = [NSMutableArray array];
+    
+    if([self.beacons count] > 0) {
+      for (id visit in self.beacons) {
+        [output addObject:[self visitToDictionary:visit]];
+      }
+    }
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:output];
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+  }];
+}
+
+- (NSMutableDictionary *)visitToDictionary:(GimbalVisit*)visit
+{
+    NSMutableDictionary* props = [[NSMutableDictionary alloc] init];
+    [props setValue:visit.rssi forKey:@"rssi"];
+    if (visit.visit) {
+      [props setValue:@([visit.visit.startTime timeIntervalSince1970]) forKey:@"startTime"];
+      [props setValue:@(visit.visit.dwellTime) forKey:@"dwellTime"];
+      [props setValue:visit.visit.transmitter.identifier forKey:@"identifier"];
+      [props setValue:visit.visit.transmitter.name forKey:@"name"];
+      [props setValue:visit.visit.transmitter.ownerId forKey:@"ownerId"];
+      [props setValue:visit.visit.transmitter.iconUrl forKey:@"iconUrl"];
+      [props setValue:@([visit.visit.transmitter.battery floatValue]) forKey:@"battery"];
+      [props setValue:@([visit.visit.transmitter.temperature floatValue]) forKey:@"temperature"];
+    }
+    
+    return props;
 }
 
 - (void)startServiceFailed:(NSError *)error {

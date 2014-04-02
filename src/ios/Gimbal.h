@@ -19,12 +19,8 @@
 @property (nonatomic) FYXVisitManager *fyxVisitManager;
 
 - (void)initApp:(CDVInvokedUrlCommand*)command;
-- (void)_initApp_:(NSString *)theAppId appSecret:(NSString *)theAppSecret callbackUrl:(NSString *)theCallbackUrl;
-
+- (void)getBeacons:(CDVInvokedUrlCommand*)command;
 - (void)startFYXVisitManager:(CDVInvokedUrlCommand*)command;
-- (void)_startFYXVisitManager_;
-
 - (void)stopFYXVisitManager:(CDVInvokedUrlCommand*)command;
-- (void)_stopFYXVisitManager_;
 
 @end

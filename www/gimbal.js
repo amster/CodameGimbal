@@ -15,16 +15,32 @@ Gimbal.prototype.callGenericSuccessCallback = function (callback, args) {
 Gimbal.prototype.initApp = function (theAppId, theAppSecret, theCallbackUrl, resultCallback) {
   var t = this;
   return cordova.exec(
-      function (parm) { t.callGenericSuccessCallback(resultCallback, parm); },
+      function (parm) {
+        t.startFYXVisitManager(function(){
+          t.callGenericSuccessCallback(resultCallback, parm); 
+        });
+      },
       function (error) { t.callGenericFailureCallback(resultCallback, error); },
       "Gimbal", "initApp", [theAppId, theAppSecret, theCallbackUrl]
       );
 };
-Gimbal.prototype.startFYXVisitManager = function () {
+Gimbal.prototype.getBeacons = function (resultCallback) {
   var t = this;
   return cordova.exec(
-      function (parm) { },
-      function (error) { },
+      resultCallback,
+      function (error) { t.callGenericFailureCallback(resultCallback, error); },
+      "Gimbal", "getBeacons", []
+      );
+};
+Gimbal.prototype.startFYXVisitManager = function (resultCallback) {
+  var t = this;
+  return cordova.exec(
+      function (parm) {
+        t.callGenericSuccessCallback(resultCallback, parm);
+      },
+      function (error) {
+        t.callGenericSuccessCallback(resultCallback, parm);
+      },
       "Gimbal", "startFYXVisitManager", []
       );
 };
