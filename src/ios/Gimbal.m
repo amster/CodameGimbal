@@ -62,15 +62,13 @@
 
 @implementation Gimbal
 
-- (Gimbal *)pluginInitialize {
+- (void)pluginInitialize {
   self.isServiceStarted = NO;
   self.serviceStartedError = nil;
 
   self.beacons = [[NSMutableArray alloc] init];
   self.recentlyArrivedBeacons = [[NSMutableArray alloc] init];
   self.recentlyDepartedBeacons = [[NSMutableArray alloc] init];
-
-  return self;
 }
 
 - (void)initApp:(CDVInvokedUrlCommand*)command {
